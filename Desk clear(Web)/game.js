@@ -116,8 +116,8 @@ const DISTURB_COOLDOWN   = [8000, 14000]; // 끝난 후 다음 예고까지 랜�
 
 const DISTURB_POOL = {
   2: ['priority', 'mail'],
-  3: ['priority', 'mail'],
-  4: ['priority', 'mail'],
+  3: ['priority', 'mail', 'wind'],
+  4: ['priority', 'mail', 'wind', 'zoneswap'],
 };
 
 const DISTURB_COPY = {
@@ -129,6 +129,14 @@ const DISTURB_COPY = {
     warning:  '📨 새 업무가 들어옵니다!',
     announce: '📨 <strong>새 업무 도착!</strong> 아이템이 추가됐어요',
   },
+  wind: {
+    warning:  '💨 바람이 불 것 같아요!',
+    announce: '💨 <strong>바람!</strong> 아이템이 날아갔어요',
+  },
+  zoneswap: {
+    warning:  '🔀 구역이 곧 바뀝니다!',
+    announce: '🔀 <strong>구역 변경!</strong> 위치를 다시 확인하세요',
+  },
 };
 
 let disturb = {
@@ -137,20 +145,23 @@ let disturb = {
   scheduleTimeout: null,
 };
 
+let zoneSwap = { a: null, b: null, timeout: null };
+
 // ============================================================
 // DRAG STATE
 // ============================================================
 
-const DRAG_THRESHOLD = 5;
+const DRAG_THRESHOLD = 7;
 
 let drag = {
-  active:  false,
-  didDrag: false,
-  itemId:  null,
-  el:      null,
-  origX:   0,
-  origY:   0,
-  offsetX: 0,
+  active:       false,
+  itemId:       null,
+  el:           null,
+  origX:        0,
+  origY:        0,
+  offsetX:      0,
+  startClientX: 0,
+  startClientY: 0,
   offsetY: 0,
 };
 
@@ -286,12 +297,6 @@ function generateItems(config) {
     el.style.top  = `${pos.y}px`;
     el.textContent = variant.emoji;
     el.title       = variant.label;
-
-    el.addEventListener('click', e => {
-      e.stopPropagation();
-      if (drag.didDrag) { drag.didDrag = false; return; }
-      onItemClick(id);
-    });
 
     initDragOnItem(el, id);
     els.desk.appendChild(el);
@@ -557,6 +562,11 @@ function triggerDisturb(type) {
   } else if (type === 'mail') {
     dropMailItem();
     onDisturbEnd();
+  } else if (type === 'wind') {
+    blowItem();
+    onDisturbEnd();
+  } else if (type === 'zoneswap') {
+    swapZones(); // onDisturbEnd는 restoreZones에서 호출
   }
 }
 
@@ -573,6 +583,7 @@ function clearDisturbSystem() {
   }
   disturb.active = null;
   clearPriorityItem();
+  clearZoneSwap();
 }
 
 // ============================================================
@@ -678,17 +689,111 @@ function dropMailItem() {
   el.textContent = variant.emoji;
   el.title       = variant.label;
 
-  el.addEventListener('click', e => {
-    e.stopPropagation();
-    if (drag.didDrag) { drag.didDrag = false; return; }
-    onItemClick(id);
-  });
-
   initDragOnItem(el, id);
   els.desk.appendChild(el);
   setTimeout(() => el.classList.remove('mail-drop'), 500);
 
   showDisturbAnnounce('mail');
+}
+
+// ============================================================
+// WIND ITEM (방해 요소 ③)
+// ============================================================
+
+function blowItem() {
+  // 드래그 중인 아이템은 제외
+  const available = state.items.filter(i => !i.placed && i.id !== drag.itemId);
+  if (!available.length) { onDisturbEnd(); return; }
+
+  const item = available[Math.floor(Math.random() * available.length)];
+  const el   = document.getElementById(`item-${item.id}`);
+  if (!el) { onDisturbEnd(); return; }
+
+  if (state.selectedItemId === item.id) deselectItem();
+
+  const deskW    = els.desk.offsetWidth;
+  const deskH    = els.desk.offsetHeight;
+  const itemSize = window.innerWidth <= 600 ? 54 : 64;
+  const margin   = 12;
+  const newX     = randInt(margin, deskW - itemSize - margin);
+  const newY     = randInt(margin, deskH - itemSize - margin);
+
+  el.classList.add('wind-moving');
+  el.style.transition = 'left 0.45s cubic-bezier(0.4,0,0.2,1), top 0.45s cubic-bezier(0.4,0,0.2,1), transform 0.3s ease';
+  el.style.left = `${newX}px`;
+  el.style.top  = `${newY}px`;
+
+  setTimeout(() => {
+    el.classList.remove('wind-moving');
+    el.style.transition = '';
+  }, 480);
+
+  showDisturbAnnounce('wind');
+}
+
+// ============================================================
+// ZONE SWAP (방해 요소 ④)
+// ============================================================
+
+const ZONE_SWAP_DURATION = 8000;
+
+function swapZones() {
+  const zoneEls = [...els.zones.querySelectorAll('.game-zone')];
+  if (zoneEls.length < 2) { onDisturbEnd(); return; }
+
+  const idxA = Math.floor(Math.random() * zoneEls.length);
+  let idxB   = Math.floor(Math.random() * (zoneEls.length - 1));
+  if (idxB >= idxA) idxB++;
+
+  const a = zoneEls[idxA];
+  const b = zoneEls[idxB];
+
+  swapDOMElements(a, b);
+  a.classList.add('zone-swapped');
+  b.classList.add('zone-swapped');
+
+  zoneSwap.a       = a;
+  zoneSwap.b       = b;
+  zoneSwap.timeout = setTimeout(restoreZones, ZONE_SWAP_DURATION);
+
+  showDisturbAnnounce('zoneswap');
+}
+
+function restoreZones() {
+  if (!zoneSwap.a || !zoneSwap.b) return;
+  swapDOMElements(zoneSwap.a, zoneSwap.b);
+  zoneSwap.a.classList.remove('zone-swapped');
+  zoneSwap.b.classList.remove('zone-swapped');
+  zoneSwap.a       = null;
+  zoneSwap.b       = null;
+  zoneSwap.timeout = null;
+  onDisturbEnd();
+}
+
+function swapDOMElements(a, b) {
+  if (a.nextSibling === b) { a.parentNode.insertBefore(b, a); return; }
+  if (b.nextSibling === a) { b.parentNode.insertBefore(a, b); return; }
+  const bNext    = b.nextSibling;
+  const bParent  = b.parentNode;
+  const ph = document.createComment('swap');
+  a.parentNode.insertBefore(ph, a);
+  bParent.insertBefore(a, bNext);
+  ph.parentNode.insertBefore(b, ph);
+  ph.remove();
+}
+
+function clearZoneSwap() {
+  if (zoneSwap.timeout) {
+    clearTimeout(zoneSwap.timeout);
+    zoneSwap.timeout = null;
+  }
+  if (zoneSwap.a) {
+    swapDOMElements(zoneSwap.a, zoneSwap.b);
+    zoneSwap.a.classList.remove('zone-swapped');
+    zoneSwap.b.classList.remove('zone-swapped');
+    zoneSwap.a = null;
+    zoneSwap.b = null;
+  }
 }
 
 // ============================================================
@@ -743,42 +848,43 @@ function updateComboDisplay() {
 }
 
 // ============================================================
-// DRAG & DROP (보조 입력)
+// DRAG & DROP (보조 입력 — Pointer Events 기반)
 // ============================================================
 
 function initDragOnItem(el, id) {
-  el.addEventListener('mousedown', e => {
-    if (e.button !== 0) return;
-    e.preventDefault();
+  // pointerdown이 preventDefault하므로 click은 거의 안 오지만 안전망으로 유지
+  el.addEventListener('click', e => e.stopPropagation());
 
-    const rect   = el.getBoundingClientRect();
-    drag.itemId  = id;
-    drag.el      = el;
-    drag.origX   = parseInt(el.style.left);
-    drag.origY   = parseInt(el.style.top);
-    drag.offsetX = e.clientX - rect.left;
-    drag.offsetY = e.clientY - rect.top;
-    drag.active  = false;
-    drag.didDrag = false;
+  el.addEventListener('pointerdown', e => {
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
+    e.preventDefault(); // click 이벤트 억제
 
-    document.addEventListener('mousemove', onDragMove);
-    document.addEventListener('mouseup',   onDragEnd);
+    const rect        = el.getBoundingClientRect();
+    drag.itemId       = id;
+    drag.el           = el;
+    drag.origX        = parseInt(el.style.left);
+    drag.origY        = parseInt(el.style.top);
+    drag.offsetX      = e.clientX - rect.left;
+    drag.offsetY      = e.clientY - rect.top;
+    drag.startClientX = e.clientX;
+    drag.startClientY = e.clientY;
+    drag.active       = false;
+
+    el.setPointerCapture(e.pointerId); // 요소 밖으로 나가도 이벤트 수신
+    el.addEventListener('pointermove',   onPointerMove);
+    el.addEventListener('pointerup',     onPointerUp);
+    el.addEventListener('pointercancel', onPointerCancel);
   });
 }
 
-function onDragMove(e) {
-  const deskRect = els.desk.getBoundingClientRect();
-  const newLeft  = e.clientX - deskRect.left - drag.offsetX;
-  const newTop   = e.clientY - deskRect.top  - drag.offsetY;
-
+function onPointerMove(e) {
   if (!drag.active) {
-    const deltaX = Math.abs(newLeft - drag.origX);
-    const deltaY = Math.abs(newTop  - drag.origY);
-    if (deltaX < DRAG_THRESHOLD && deltaY < DRAG_THRESHOLD) return;
+    const dx = Math.abs(e.clientX - drag.startClientX);
+    const dy = Math.abs(e.clientY - drag.startClientY);
+    if (dx < DRAG_THRESHOLD && dy < DRAG_THRESHOLD) return;
 
-    drag.active  = true;
-    drag.didDrag = true;
-
+    // 임계 이동량 초과 → 드래그 시작
+    drag.active = true;
     if (state.selectedItemId !== drag.itemId) {
       deselectItem();
       state.selectedItemId = drag.itemId;
@@ -787,38 +893,42 @@ function onDragMove(e) {
     drag.el.classList.add('selected', 'dragging');
   }
 
+  const deskRect = els.desk.getBoundingClientRect();
   const itemSize = window.innerWidth <= 600 ? 54 : 64;
-  drag.el.style.left = `${clamp(newLeft, 0, deskRect.width  - itemSize)}px`;
-  drag.el.style.top  = `${clamp(newTop,  0, deskRect.height - itemSize)}px`;
+  drag.el.style.left = `${clamp(e.clientX - deskRect.left - drag.offsetX, 0, deskRect.width  - itemSize)}px`;
+  drag.el.style.top  = `${clamp(e.clientY - deskRect.top  - drag.offsetY, 0, deskRect.height - itemSize)}px`;
 
   updateZoneDragOver(e.clientX, e.clientY);
 }
 
-function onDragEnd(e) {
-  document.removeEventListener('mousemove', onDragMove);
-  document.removeEventListener('mouseup',   onDragEnd);
+function onPointerUp(e) {
+  drag.el.removeEventListener('pointermove',   onPointerMove);
+  drag.el.removeEventListener('pointerup',     onPointerUp);
+  drag.el.removeEventListener('pointercancel', onPointerCancel);
+  clearZoneDragOver();
 
-  if (!drag.active) return;
+  if (!drag.active) {
+    // 임계 미만 → 클릭으로 즉시 처리
+    onItemClick(drag.itemId);
+    return;
+  }
 
   drag.el.classList.remove('dragging');
-  clearZoneDragOver();
 
   drag.el.style.pointerEvents = 'none';
   const target = document.elementFromPoint(e.clientX, e.clientY);
   drag.el.style.pointerEvents = '';
 
   const zoneEl = target?.closest('.game-zone');
+  const item   = state.items.find(i => i.id === drag.itemId);
 
-  if (zoneEl) {
+  if (zoneEl && item) {
     const zoneId = zoneEl.id.replace('zone-', '');
-    const item   = state.items.find(i => i.id === drag.itemId);
-    if (item) {
-      if (ITEM_TYPES[item.typeKey].zoneId === zoneId) {
-        placeItem(item, zoneEl, drag.el);
-      } else {
-        returnToOrigin();
-        wrongPlacement(zoneEl, drag.el);
-      }
+    if (ITEM_TYPES[item.typeKey].zoneId === zoneId) {
+      placeItem(item, zoneEl, drag.el);
+    } else {
+      returnToOrigin();
+      wrongPlacement(zoneEl, drag.el);
     }
   } else {
     returnToOrigin();
@@ -826,6 +936,18 @@ function onDragEnd(e) {
   }
 
   drag.active = false;
+}
+
+function onPointerCancel(e) {
+  drag.el.removeEventListener('pointermove',   onPointerMove);
+  drag.el.removeEventListener('pointerup',     onPointerUp);
+  drag.el.removeEventListener('pointercancel', onPointerCancel);
+  clearZoneDragOver();
+  if (drag.active) {
+    returnToOrigin();
+    deselectItem();
+    drag.active = false;
+  }
 }
 
 function returnToOrigin() {
