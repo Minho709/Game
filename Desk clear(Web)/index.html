@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>데스크 클리어</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- 닉네임 화면 -->
+  <div id="screen-nickname" class="screen active">
+    <div class="brand">
+      <div class="brand-icon">🗂️</div>
+      <h1>데스크 클리어</h1>
+      <p class="tagline">어질러진 책상을 정리하고 뇌를 환기시키세요</p>
+    </div>
+    <div class="nickname-card">
+      <label for="nickname-input">닉네임</label>
+      <input type="text" id="nickname-input" placeholder="최대 20자" maxlength="20" autocomplete="off">
+      <button id="start-btn" class="btn-primary">게임 시작 →</button>
+    </div>
+    <div class="how-to">
+      <h3>게임 방법</h3>
+      <div class="rules-list">
+        <div class="rule">👆 아이템을 클릭해서 선택</div>
+        <div class="rule">📦 맞는 구역을 클릭해서 정리</div>
+        <div class="rule">⏱ 시간 내에 모두 정리하면 레벨 클리어!</div>
+        <div class="rule">🔥 연속 3개 정리하면 콤보 보너스</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 게임 화면 -->
+  <div id="screen-game" class="screen">
+    <div id="hud">
+      <div class="hud-block">
+        <span class="hud-label">레벨</span>
+        <span class="hud-value" id="hud-level">1</span>
+      </div>
+      <div class="hud-block hud-timer" id="hud-timer-block">
+        <span class="hud-label">⏱ 시간</span>
+        <span class="hud-value" id="hud-time">50</span>
+      </div>
+      <div class="hud-block">
+        <span class="hud-label">점수</span>
+        <span class="hud-value" id="hud-score">0</span>
+      </div>
+      <div class="hud-block" id="hud-combo-block">
+        <span class="hud-label">콤보</span>
+        <span class="hud-value combo-value" id="hud-combo">0</span>
+      </div>
+    </div>
+
+    <div id="game-area">
+      <div id="hint-bar" class="hint-bar">아이템을 클릭한 뒤, 맞는 구역을 클릭하세요!</div>
+      <div id="desk">
+        <!-- 아이템 JS로 주입 -->
+      </div>
+      <div id="zones">
+        <!-- 구역 JS로 주입 -->
+      </div>
+    </div>
+  </div>
+
+  <!-- 결과 화면 -->
+  <div id="screen-result" class="screen">
+    <div class="result-card">
+      <div id="result-icon">🎉</div>
+      <h2 id="result-title">게임 종료</h2>
+      <div class="result-stats">
+        <div class="stat-row">
+          <span class="stat-label">닉네임</span>
+          <span class="stat-value" id="result-nickname">-</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">도달 레벨</span>
+          <span class="stat-value" id="result-level">-</span>
+        </div>
+        <div class="stat-row highlight">
+          <span class="stat-label">최종 점수</span>
+          <span class="stat-value" id="result-score">-</span>
+        </div>
+      </div>
+      <div class="result-actions">
+        <button id="restart-btn" class="btn-primary">다시 시작</button>
+        <button id="back-btn" class="btn-secondary">메인으로</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="game.js"></script>
+</body>
+</html>
