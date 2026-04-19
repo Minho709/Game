@@ -148,6 +148,76 @@ let disturb = {
 let zoneSwap = { a: null, b: null, timeout: null };
 
 // ============================================================
+// SOUND (Web Audio API — 합성음, 파일 불필요)
+// ============================================================
+
+let _audioCtx = null;
+
+function getAudioCtx() {
+  if (!_audioCtx) _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  return _audioCtx;
+}
+
+function _tone(freq, type, startTime, duration, gain = 0.28) {
+  const ctx = getAudioCtx();
+  const osc = ctx.createOscillator();
+  const env = ctx.createGain();
+  osc.connect(env);
+  env.connect(ctx.destination);
+  osc.type = type;
+  osc.frequency.setValueAtTime(freq, startTime);
+  env.gain.setValueAtTime(0, startTime);
+  env.gain.linearRampToValueAtTime(gain, startTime + 0.01);
+  env.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+  osc.start(startTime);
+  osc.stop(startTime + duration + 0.02);
+}
+
+const SFX = {
+  correct() {
+    const t = getAudioCtx().currentTime;
+    _tone(880, 'sine', t, 0.14, 0.24);
+  },
+  combo() {
+    const t = getAudioCtx().currentTime;
+    _tone(523,  'sine', t,        0.10, 0.22);
+    _tone(659,  'sine', t + 0.10, 0.10, 0.22);
+    _tone(784,  'sine', t + 0.20, 0.20, 0.30);
+  },
+  wrong() {
+    const ctx = getAudioCtx();
+    const t   = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const env = ctx.createGain();
+    osc.connect(env);
+    env.connect(ctx.destination);
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(220, t);
+    osc.frequency.linearRampToValueAtTime(130, t + 0.22);
+    env.gain.setValueAtTime(0.22, t);
+    env.gain.exponentialRampToValueAtTime(0.001, t + 0.22);
+    osc.start(t);
+    osc.stop(t + 0.24);
+  },
+  penalty() {
+    const t = getAudioCtx().currentTime;
+    _tone(300, 'sawtooth', t,        0.14, 0.28);
+    _tone(190, 'sawtooth', t + 0.16, 0.26, 0.28);
+  },
+  levelClear() {
+    const t = getAudioCtx().currentTime;
+    _tone(523,  'sine', t,        0.14, 0.30);
+    _tone(659,  'sine', t + 0.13, 0.14, 0.30);
+    _tone(1047, 'sine', t + 0.26, 0.32, 0.36);
+  },
+  warning() {
+    const t = getAudioCtx().currentTime;
+    _tone(440, 'triangle', t,        0.09, 0.18);
+    _tone(440, 'triangle', t + 0.13, 0.09, 0.18);
+  },
+};
+
+// ============================================================
 // DRAG STATE
 // ============================================================
 
@@ -224,6 +294,7 @@ function handleStart() {
     return;
   }
   state.nickname = nick;
+  getAudioCtx().resume(); // 사용자 제스처 타이밍에 AudioContext 활성화
   startGame();
 }
 
@@ -423,6 +494,7 @@ function placeItem(item, zoneEl, itemEl) {
   }
 
   state.score += earned;
+  isCombo ? SFX.combo() : SFX.correct();
   showScorePopup(itemEl, earned, isCombo);
   updateComboDisplay();
 
@@ -439,6 +511,7 @@ function placeItem(item, zoneEl, itemEl) {
 }
 
 function wrongPlacement(zoneEl, itemEl) {
+  SFX.wrong();
   state.combo = 0;
   updateComboDisplay();
 
@@ -481,6 +554,7 @@ function checkWin() {
   if (remaining.length > 0) return;
 
   clearTimer();
+  SFX.levelClear();
   const timeBonus = state.timeLeft * 2;
   state.score += timeBonus;
   updateHUD();
@@ -532,6 +606,7 @@ function triggerDisturbWarning() {
   const type = candidates[Math.floor(Math.random() * candidates.length)];
 
   disturb.active = type;
+  SFX.warning();
   showDisturbToast(DISTURB_COPY[type].warning, type);
 
   disturb.scheduleTimeout = setTimeout(() => triggerDisturb(type), DISTURB_WARNING_MS);
@@ -631,6 +706,7 @@ function onPriorityExpired() {
   const el = document.getElementById(`item-${priority.itemId}`);
   clearPriorityItem();
 
+  SFX.penalty();
   state.score = Math.max(0, state.score - PRIORITY_PENALTY);
   updateHUD();
   if (el) showPenaltyPopup(el);
