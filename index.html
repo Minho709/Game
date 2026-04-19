@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Game Projects</title>
+  <style>
+    :root {
+      --bg: #f2ede4;
+      --panel: rgba(255, 255, 255, 0.82);
+      --text: #1f1f1f;
+      --muted: #666;
+      --line: rgba(31, 31, 31, 0.08);
+      --accent: #2367d1;
+      --accent-hover: #184fa8;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(35, 103, 209, 0.10), transparent 32%),
+        radial-gradient(circle at bottom right, rgba(35, 103, 209, 0.12), transparent 28%),
+        linear-gradient(180deg, #f7f2ea 0%, var(--bg) 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .page {
+      width: min(880px, 100%);
+      display: grid;
+      gap: 18px;
+    }
+
+    .hero,
+    .project-card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 16px 40px rgba(31, 31, 31, 0.08);
+    }
+
+    .hero {
+      padding: 36px;
+    }
+
+    .eyebrow {
+      display: inline-block;
+      margin-bottom: 14px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: rgba(35, 103, 209, 0.10);
+      color: var(--accent);
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+    }
+
+    h1 {
+      margin: 0 0 10px;
+      font-size: clamp(2rem, 5vw, 3.4rem);
+      line-height: 1.02;
+    }
+
+    .hero p {
+      margin: 0;
+      max-width: 60ch;
+      color: var(--muted);
+      font-size: 1rem;
+      line-height: 1.7;
+    }
+
+    .project-card {
+      padding: 24px;
+      display: grid;
+      gap: 14px;
+    }
+
+    .project-top {
+      display: flex;
+      align-items: start;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .project-title {
+      margin: 0;
+      font-size: 1.35rem;
+    }
+
+    .project-subtitle {
+      margin: 6px 0 0;
+      color: var(--muted);
+      line-height: 1.65;
+    }
+
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .tag {
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: #f3f6fb;
+      color: #30548b;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 44px;
+      padding: 0 16px;
+      border-radius: 12px;
+      text-decoration: none;
+      font-weight: 700;
+      transition: transform 0.14s ease, background 0.14s ease, border-color 0.14s ease;
+    }
+
+    .button:hover {
+      transform: translateY(-1px);
+    }
+
+    .button-primary {
+      background: var(--accent);
+      color: white;
+    }
+
+    .button-primary:hover {
+      background: var(--accent-hover);
+    }
+
+    .button-secondary {
+      border: 1px solid var(--line);
+      color: var(--text);
+      background: white;
+    }
+
+    .button-secondary:hover {
+      border-color: rgba(35, 103, 209, 0.24);
+      background: #fbfdff;
+    }
+
+    @media (max-width: 640px) {
+      .hero,
+      .project-card {
+        padding: 20px;
+        border-radius: 18px;
+      }
+
+      .project-top {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="hero">
+      <div class="eyebrow">Game Projects</div>
+      <h1>Small games and interactive experiments.</h1>
+      <p>
+        A lightweight home for playable prototypes and game ideas. Current focus:
+        <strong>Desk Clear</strong>, a short desk-organizing puzzle game built for quick brain breaks.
+      </p>
+    </section>
+
+    <section class="project-card">
+      <div class="project-top">
+        <div>
+          <h2 class="project-title">Desk Clear</h2>
+          <p class="project-subtitle">
+            A short browser puzzle where you organize a messy desk, react to small disturbances,
+            and reset your brain between work sessions.
+          </p>
+        </div>
+        <div class="tags" aria-label="Project tags">
+          <span class="tag">HTML</span>
+          <span class="tag">CSS</span>
+          <span class="tag">Vanilla JS</span>
+        </div>
+      </div>
+
+      <div class="actions">
+        <a class="button button-primary" href="./Desk%20clear(Web)/">Play Desk Clear</a>
+        <a class="button button-secondary" href="./README.md">Repository README</a>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
