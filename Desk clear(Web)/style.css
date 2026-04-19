@@ -362,6 +362,31 @@ body {
 .disturb-announce span { font-weight: 700; }
 .disturb-announce.disturb-priority span { color: var(--danger); }
 .disturb-announce.disturb-mail span     { color: #e07820; }
+.disturb-toast.disturb-wind             { background: #2a9fd0; }
+.disturb-toast.disturb-zoneswap         { background: #8a4af0; }
+.disturb-announce.disturb-wind          { border: 2px solid #2a9fd0; }
+.disturb-announce.disturb-zoneswap      { border: 2px solid #8a4af0; }
+.disturb-announce.disturb-wind span     { color: #2a9fd0; }
+.disturb-announce.disturb-zoneswap span { color: #8a4af0; }
+
+/* 바람에 날리는 아이템 */
+.desk-item.wind-moving {
+  z-index: 15;
+  transform: rotate(14deg) scale(1.1) !important;
+  opacity: 0.82;
+}
+
+/* 구역 변경 표시 — 점선 테두리가 복구될 때까지 유지 */
+.game-zone.zone-swapped {
+  outline: 2px dashed #8a4af0;
+  outline-offset: 2px;
+  animation: zone-swap-flash 0.55s ease forwards;
+}
+
+@keyframes zone-swap-flash {
+  0%   { background: rgba(138,74,240,0.22); transform: scale(1.06); }
+  100% { background: transparent;           transform: scale(1); }
+}
 
 /* 메일 아이템 낙하 애니메이션 */
 .desk-item.mail-drop {
