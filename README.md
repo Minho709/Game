@@ -8,7 +8,7 @@ This repository is a collection of small game projects, playable experiments, an
 
 It is used as a shared home for lightweight projects that may stay as prototypes or grow into larger games later.
 
-link : https://github.com/Minho709/Game.git
+link : [Game Collection](https://Minho709.github.io/Game)
 
 ### Current Projects
 
@@ -33,7 +33,7 @@ link : https://github.com/Minho709/Game.git
 
 가볍게 시작하는 게임 아이디어를 한곳에서 관리하기 위한 용도이며, 어떤 프로젝트는 프로토타입으로 끝날 수도 있고 나중에 더 큰 게임으로 발전할 수도 있습니다.
 
-링크 : https://github.com/Minho709/Game.git
+링크 : [Game Collection](https://Minho709.github.io/Game)
 
 ### 현재 프로젝트
 
