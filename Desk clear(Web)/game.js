@@ -107,11 +107,13 @@ function getLevelConfig(level) {
     const cfg = LEVEL_CONFIG[level];
     return { ...cfg, types: allTypes.slice(0, cfg.typeCount) };
   }
-  return {
-    count: 18 + (level - 5) * 2,
-    time: 45,
-    types: allTypes,
-  };
+  const INCREMENTS = [1, 1, 2, 2, 3];
+  const CYCLE_SUM  = 9;
+  const offset     = level - 6;
+  const partial    = INCREMENTS.slice(0, (offset % 5) + 1).reduce((a, b) => a + b, 0);
+  const count      = 18 + Math.floor(offset / 5) * CYCLE_SUM + partial;
+  const time       = Math.max(20, 45 - Math.floor((level - 1) / 10));
+  return { count, time, types: allTypes };
 }
 
 // ============================================================
