@@ -1127,11 +1127,20 @@ async function syncLeaderboard() {
   list.innerHTML = '<div class="lb-status">점수 저장 중...</div>';
 
   try {
-    await _sb.from('scores').insert({
-      nickname: state.nickname,
-      score:    state.score,
-      level:    state.level,
-    });
+    const { data: existing } = await _sb
+      .from('scores')
+      .select('score')
+      .eq('nickname', state.nickname)
+      .maybeSingle();
+
+    if (!existing || state.score > existing.score) {
+      const { error: upsertError } = await _sb.from('scores').upsert({
+        nickname: state.nickname,
+        score:    state.score,
+        level:    state.level,
+      }, { onConflict: 'nickname' });
+      if (upsertError) throw upsertError;
+    }
 
     const { data, error } = await _sb
       .from('scores')
