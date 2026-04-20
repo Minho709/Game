@@ -164,6 +164,23 @@ body {
   color: var(--primary);
 }
 
+.nickname-leaderboard {
+  background: var(--card-bg);
+  border-radius: 16px;
+  padding: 20px 24px;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.07);
+  margin-bottom: 24px;
+}
+
+.nickname-leaderboard h3 {
+  margin-bottom: 12px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
 .how-to {
   background: var(--card-bg);
   border-radius: 16px;
