@@ -1,6 +1,31 @@
 'use strict';
 
 // ============================================================
+// SUPABASE CONFIG
+// ============================================================
+// 1) Supabase 프로젝트에서 아래 SQL로 테이블 생성:
+//
+//   create table public.scores (
+//     id         bigserial primary key,
+//     nickname   text    not null check (char_length(nickname) <= 20),
+//     score      integer not null check (score >= 0),
+//     level      integer not null check (level >= 1),
+//     created_at timestamptz not null default now()
+//   );
+//   alter table public.scores enable row level security;
+//   create policy "public read"   on public.scores for select using (true);
+//   create policy "public insert" on public.scores for insert with check (true);
+//
+// 2) 아래 두 값을 본인 프로젝트의 URL / anon key 로 교체하면 스코어보드 활성화.
+
+const SUPABASE_URL = 'https://eddqawlpcsdchcqjwxkw.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_vAmeZlNZ46Nwg05J8UXuAg_bNqvqCDG';
+
+const _sb = (SUPABASE_URL !== 'YOUR_SUPABASE_URL' && typeof window.supabase !== 'undefined')
+  ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
+  : null;
+
+// ============================================================
 // CONFIG
 // ============================================================
 
@@ -1050,7 +1075,7 @@ function clearZoneDragOver() {
 // GAME OVER
 // ============================================================
 
-function gameover() {
+async function gameover() {
   deselectItem();
 
   els.resultNickname.textContent = state.nickname;
@@ -1060,6 +1085,59 @@ function gameover() {
   els.resultTitle.textContent    = state.score >= 100 ? '수고했어요!' : '다음엔 더 잘할 수 있어요!';
 
   showScreen('result');
+  await syncLeaderboard();
+}
+
+async function syncLeaderboard() {
+  const section = document.getElementById('leaderboard-section');
+  const list    = document.getElementById('leaderboard-list');
+
+  if (!_sb) { section.style.display = 'none'; return; }
+
+  section.style.display = '';
+  list.innerHTML = '<div class="lb-status">점수 저장 중...</div>';
+
+  try {
+    await _sb.from('scores').insert({
+      nickname: state.nickname,
+      score:    state.score,
+      level:    state.level,
+    });
+
+    const { data, error } = await _sb
+      .from('scores')
+      .select('nickname, score, level')
+      .order('score', { ascending: false })
+      .limit(10);
+
+    if (error) throw error;
+    renderLeaderboard(list, data);
+  } catch {
+    list.innerHTML = '<div class="lb-status lb-error">스코어보드 연결 실패</div>';
+  }
+}
+
+function renderLeaderboard(list, rows) {
+  if (!rows || !rows.length) {
+    list.innerHTML = '<div class="lb-status">아직 기록이 없어요</div>';
+    return;
+  }
+
+  const MEDALS = ['🥇', '🥈', '🥉'];
+  list.innerHTML = rows.map((r, i) => {
+    const isMe = r.nickname === state.nickname && r.score === state.score;
+    const rank = MEDALS[i] ?? `${i + 1}`;
+    return `<div class="lb-row${isMe ? ' lb-me' : ''}">
+      <span class="lb-rank">${rank}</span>
+      <span class="lb-name">${escHtml(r.nickname)}</span>
+      <span class="lb-score">${r.score.toLocaleString()}점</span>
+      <span class="lb-level">Lv.${r.level}</span>
+    </div>`;
+  }).join('');
+}
+
+function escHtml(s) {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
 // ============================================================
