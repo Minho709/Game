@@ -327,8 +327,30 @@ document.querySelectorAll('.theme-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
+    loadNicknameLeaderboard(btn.dataset.theme);
   });
 });
+
+async function loadNicknameLeaderboard(theme = 'office') {
+  const list = document.getElementById('nickname-lb-list');
+  if (!_sb) { document.getElementById('nickname-leaderboard').style.display = 'none'; return; }
+
+  list.innerHTML = '<div class="lb-status">불러오는 중...</div>';
+  try {
+    const { data, error } = await _sb
+      .from('scores')
+      .select('nickname, score, level')
+      .eq('theme', theme)
+      .order('score', { ascending: false })
+      .limit(10);
+    if (error) throw error;
+    renderLeaderboard(list, data);
+  } catch {
+    list.innerHTML = '<div class="lb-status lb-error">불러오기 실패</div>';
+  }
+}
+
+loadNicknameLeaderboard('office');
 
 function handleStart() {
   const nick = els.nicknameInput.value.trim();
@@ -1138,13 +1160,15 @@ async function syncLeaderboard() {
         nickname: state.nickname,
         score:    state.score,
         level:    state.level,
-      }, { onConflict: 'nickname' });
+        theme:    state.theme,
+      }, { onConflict: 'nickname,theme' });
       if (upsertError) throw upsertError;
     }
 
     const { data, error } = await _sb
       .from('scores')
       .select('nickname, score, level')
+      .eq('theme', state.theme)
       .order('score', { ascending: false })
       .limit(10);
 
