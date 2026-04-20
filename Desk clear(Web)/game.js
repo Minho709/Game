@@ -1162,6 +1162,7 @@ async function syncLeaderboard() {
         level:    state.level,
         theme:    state.theme,
       }, { onConflict: 'nickname,theme' });
+
       if (upsertError) throw upsertError;
     }
 
