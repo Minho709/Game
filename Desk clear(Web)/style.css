@@ -608,6 +608,52 @@ body.item-selected .game-zone:hover {
 
 .result-actions button { flex: 1; }
 
+/* ===== LEADERBOARD ===== */
+.leaderboard-section {
+  width: 100%;
+  border-top: 1px solid #eee;
+  padding-top: 16px;
+}
+
+.leaderboard-section h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 10px;
+  text-align: left;
+}
+
+.lb-row {
+  display: grid;
+  grid-template-columns: 32px 1fr auto auto;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 10px;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  margin-bottom: 4px;
+  background: #f8f8f8;
+}
+
+.lb-row.lb-me {
+  background: #eef4ff;
+  font-weight: 700;
+  outline: 2px solid var(--primary);
+}
+
+.lb-rank  { font-size: 1rem; text-align: center; }
+.lb-name  { color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lb-score { color: var(--primary); font-weight: 700; white-space: nowrap; }
+.lb-level { color: var(--text-light); font-size: 0.78rem; white-space: nowrap; }
+
+.lb-status {
+  text-align: center;
+  color: var(--text-light);
+  font-size: 0.85rem;
+  padding: 12px 0;
+}
+.lb-error { color: var(--danger); }
+
 /* ===== RESPONSIVE ===== */
 @media (max-width: 600px) {
   #desk { height: 260px; }
