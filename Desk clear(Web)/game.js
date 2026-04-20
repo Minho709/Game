@@ -994,10 +994,12 @@ function onPointerMove(e) {
     drag.el.classList.add('selected', 'dragging');
   }
 
-  const deskRect = els.desk.getBoundingClientRect();
-  const itemSize = window.innerWidth <= 600 ? 54 : 64;
-  drag.el.style.left = `${clamp(e.clientX - deskRect.left - drag.offsetX, 0, deskRect.width  - itemSize)}px`;
-  drag.el.style.top  = `${clamp(e.clientY - deskRect.top  - drag.offsetY, 0, deskRect.height - itemSize)}px`;
+  const deskRect  = els.desk.getBoundingClientRect();
+  const zonesRect = els.zones.getBoundingClientRect();
+  const itemSize  = window.innerWidth <= 600 ? 54 : 64;
+  const maxBottom = zonesRect.bottom - deskRect.top - itemSize;
+  drag.el.style.left = `${clamp(e.clientX - deskRect.left - drag.offsetX, 0, deskRect.width - itemSize)}px`;
+  drag.el.style.top  = `${clamp(e.clientY - deskRect.top  - drag.offsetY, 0, maxBottom)}px`;
 
   updateZoneDragOver(e.clientX, e.clientY);
 }
