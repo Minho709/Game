@@ -1160,6 +1160,7 @@ async function syncLeaderboard() {
       .from('scores')
       .select('score')
       .eq('nickname', state.nickname)
+      .eq('theme', state.theme)
       .maybeSingle();
 
     if (!existing || state.score > existing.score) {
