@@ -95,6 +95,44 @@ body {
   border-color: var(--primary);
 }
 
+.theme-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.theme-selector label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-light);
+}
+
+.theme-options {
+  display: flex;
+  gap: 8px;
+}
+
+.theme-btn {
+  flex: 1;
+  padding: 8px 4px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  background: white;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  color: var(--text);
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+}
+
+.theme-btn:hover { border-color: var(--primary); }
+
+.theme-btn.active {
+  border-color: var(--primary);
+  background: var(--primary);
+  color: white;
+}
+
 .btn-primary {
   background: var(--primary);
   color: white;
