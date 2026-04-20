@@ -160,24 +160,28 @@ const DISTURB_POOL = {
   4: ['priority', 'mail', 'wind', 'zoneswap'],
 };
 
-const DISTURB_COPY = {
-  priority: {
-    warning:  '⚡ 긴급 요청이 곧 들어옵니다!',
-    announce: '⚡ <strong>긴급!</strong> 빨간 아이템을 8초 안에 정리하세요 <span>(미처리 시 -20점)</span>',
+const DISTURB_COPY_BY_THEME = {
+  office: {
+    priority: { warning: '⚡ 긴급 요청이 곧 들어옵니다!',  announce: '⚡ <strong>긴급!</strong> 빨간 아이템을 8초 안에 정리하세요 <span>(미처리 시 -20점)</span>' },
+    mail:     { warning: '📨 새 업무가 들어옵니다!',        announce: '📨 <strong>새 업무 도착!</strong> 아이템이 추가됐어요' },
+    wind:     { warning: '💨 바람이 불 것 같아요!',         announce: '💨 <strong>바람!</strong> 아이템이 날아갔어요' },
+    zoneswap: { warning: '🔀 구역이 곧 바뀝니다!',         announce: '🔀 <strong>구역 변경!</strong> 위치를 다시 확인하세요' },
   },
-  mail: {
-    warning:  '📨 새 업무가 들어옵니다!',
-    announce: '📨 <strong>새 업무 도착!</strong> 아이템이 추가됐어요',
+  cafe: {
+    priority: { warning: '⚡ 급한 주문이 곧 들어옵니다!',  announce: '⚡ <strong>긴급 주문!</strong> 빨간 아이템을 8초 안에 치워주세요 <span>(미처리 시 -20점)</span>' },
+    mail:     { warning: '📨 새 주문이 들어옵니다!',        announce: '📨 <strong>새 주문 도착!</strong> 아이템이 추가됐어요' },
+    wind:     { warning: '💨 바람이 불 것 같아요!',         announce: '💨 <strong>바람!</strong> 아이템이 날아갔어요' },
+    zoneswap: { warning: '🔀 자리가 곧 바뀝니다!',         announce: '🔀 <strong>자리 변경!</strong> 위치를 다시 확인하세요' },
   },
-  wind: {
-    warning:  '💨 바람이 불 것 같아요!',
-    announce: '💨 <strong>바람!</strong> 아이템이 날아갔어요',
-  },
-  zoneswap: {
-    warning:  '🔀 구역이 곧 바뀝니다!',
-    announce: '🔀 <strong>구역 변경!</strong> 위치를 다시 확인하세요',
+  student: {
+    priority: { warning: '⚡ 선생님이 오십니다!',           announce: '⚡ <strong>선생님 등장!</strong> 빨간 아이템을 8초 안에 치워주세요 <span>(미처리 시 -20점)</span>' },
+    mail:     { warning: '📨 새 과제가 들어옵니다!',        announce: '📨 <strong>새 과제 도착!</strong> 아이템이 추가됐어요' },
+    wind:     { warning: '💨 바람이 불 것 같아요!',         announce: '💨 <strong>바람!</strong> 아이템이 날아갔어요' },
+    zoneswap: { warning: '🔀 자리가 곧 바뀝니다!',         announce: '🔀 <strong>자리 변경!</strong> 위치를 다시 확인하세요' },
   },
 };
+
+let DISTURB_COPY = DISTURB_COPY_BY_THEME.office;
 
 let disturb = {
   active:          null,  // 현재 활성 타입
@@ -367,6 +371,7 @@ function handleStart() {
   state.theme    = selected ? selected.dataset.theme : 'office';
   ITEM_TYPES     = THEMES[state.theme].itemTypes;
   ZONES_CONFIG   = THEMES[state.theme].zonesConfig;
+  DISTURB_COPY   = DISTURB_COPY_BY_THEME[state.theme];
   const theme    = THEMES[state.theme];
   els.desk.style.background   = theme.deskBg;
   els.desk.style.borderBottom = `4px solid ${theme.deskBorder}`;
