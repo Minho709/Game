@@ -29,76 +29,88 @@ const _sb = (SUPABASE_URL !== 'YOUR_SUPABASE_URL' && typeof window.supabase !== 
 // CONFIG
 // ============================================================
 
-const ITEM_TYPES = {
-  file: {
-    zoneId: 'filebox',
-    variants: [
-      { emoji: '📄', label: '문서' },
-      { emoji: '📊', label: '차트' },
-      { emoji: '📑', label: '보고서' },
-      { emoji: '📈', label: '그래프' },
-      { emoji: '📉', label: '분석표' },
-    ],
+const THEMES = {
+  office: {
+    name: '오피스', emoji: '🏢',
+    deskBg: 'repeating-linear-gradient(90deg,transparent,transparent 48px,rgba(0,0,0,0.025) 48px,rgba(0,0,0,0.025) 49px),linear-gradient(175deg,#d4a55a 0%,#c49040 55%,#b07828 100%)',
+    deskBorder: '#9a6820',
+    itemTypes: {
+      file:   { zoneId: 'filebox',      variants: [{ emoji: '📄', label: '문서' },     { emoji: '📊', label: '차트' },    { emoji: '📑', label: '보고서' }, { emoji: '📈', label: '그래프' }, { emoji: '📉', label: '분석표' }] },
+      coffee: { zoneId: 'shelf',        variants: [{ emoji: '☕', label: '커피' },     { emoji: '🥤', label: '아이스 음료' }, { emoji: '🧋', label: '버블티' }] },
+      note:   { zoneId: 'noticeboard',  variants: [{ emoji: '📝', label: '메모' },     { emoji: '🗒️', label: '노트' },   { emoji: '📌', label: '포스트잇' }] },
+      pen:    { zoneId: 'pencilholder', variants: [{ emoji: '✏️', label: '연필' },     { emoji: '🖊️', label: '볼펜' },   { emoji: '🖋️', label: '만년필' }] },
+      book:   { zoneId: 'bookshelf',    variants: [{ emoji: '📚', label: '책' },       { emoji: '📖', label: '책' },      { emoji: '📓', label: '노트' },   { emoji: '📔', label: '다이어리' }, { emoji: '📒', label: '노트' }] },
+    },
+    zonesConfig: {
+      filebox:      { label: '파일함', emoji: '🗂️', accepts: 'file' },
+      shelf:        { label: '선반',   emoji: '🪴',  accepts: 'coffee' },
+      noticeboard:  { label: '메모판', emoji: '📋', accepts: 'note' },
+      pencilholder: { label: '펜꽂이', emoji: '🖊️', accepts: 'pen' },
+      bookshelf:    { label: '책장',   emoji: '📖', accepts: 'book' },
+    },
   },
-  coffee: {
-    zoneId: 'shelf',
-    variants: [
-      { emoji: '☕', label: '커피' },
-      { emoji: '🥤', label: '아이스 음료' },
-      { emoji: '🧋', label: '버블티' },
-    ],
+  cafe: {
+    name: '카페', emoji: '☕',
+    deskBg: 'repeating-linear-gradient(90deg,transparent,transparent 48px,rgba(0,0,0,0.025) 48px,rgba(0,0,0,0.025) 49px),linear-gradient(175deg,#e8d5b0 0%,#d4b896 55%,#c4a07a 100%)',
+    deskBorder: '#a87d50',
+    itemTypes: {
+      drink:   { zoneId: 'traytop',    variants: [{ emoji: '☕', label: '아메리카노' }, { emoji: '🧋', label: '라떼' },   { emoji: '🍵', label: '차' }] },
+      dessert: { zoneId: 'plate',      variants: [{ emoji: '🍰', label: '케이크' },    { emoji: '🧁', label: '머핀' },   { emoji: '🍩', label: '도넛' }] },
+      magazine:{ zoneId: 'magshelf',   variants: [{ emoji: '📰', label: '신문' },      { emoji: '🗞️', label: '잡지' },  { emoji: '📗', label: '책' }] },
+      earphone:{ zoneId: 'hookstand',  variants: [{ emoji: '🎧', label: '헤드폰' },    { emoji: '🎵', label: '이어폰' }] },
+      laptop:  { zoneId: 'chargespot', variants: [{ emoji: '💻', label: '노트북' },    { emoji: '📱', label: '태블릿' }] },
+    },
+    zonesConfig: {
+      traytop:    { label: '음료 트레이',  emoji: '🫙',  accepts: 'drink' },
+      plate:      { label: '디저트 접시', emoji: '🍽️', accepts: 'dessert' },
+      magshelf:   { label: '잡지 선반',   emoji: '📰', accepts: 'magazine' },
+      hookstand:  { label: '이어폰 거치대', emoji: '🎧', accepts: 'earphone' },
+      chargespot: { label: '충전 스팟',   emoji: '🔌', accepts: 'laptop' },
+    },
   },
-  note: {
-    zoneId: 'noticeboard',
-    variants: [
-      { emoji: '📝', label: '메모' },
-      { emoji: '🗒️', label: '노트' },
-      { emoji: '📌', label: '포스트잇' },
-    ],
-  },
-  pen: {
-    zoneId: 'pencilholder',
-    variants: [
-      { emoji: '✏️', label: '연필' },
-      { emoji: '🖊️', label: '볼펜' },
-      { emoji: '🖋️', label: '만년필' },
-    ],
-  },
-  book: {
-    zoneId: 'bookshelf',
-    variants: [
-      { emoji: '📚', label: '책' },
-      { emoji: '📖', label: '책' },
-      { emoji: '📓', label: '노트' },
-      { emoji: '📔', label: '다이어리' },
-      { emoji: '📒', label: '노트' },
-    ],
+  student: {
+    name: '학생', emoji: '📚',
+    deskBg: 'repeating-linear-gradient(90deg,transparent,transparent 48px,rgba(0,0,0,0.025) 48px,rgba(0,0,0,0.025) 49px),linear-gradient(175deg,#dce8f5 0%,#c8d8ee 55%,#b0c4e0 100%)',
+    deskBorder: '#8aabda',
+    itemTypes: {
+      textbook: { zoneId: 'bookstand',  variants: [{ emoji: '📚', label: '교과서' },   { emoji: '📖', label: '참고서' }, { emoji: '📘', label: '문제집' }] },
+      pencil:   { zoneId: 'pencilcase', variants: [{ emoji: '✏️', label: '연필' },     { emoji: '🖊️', label: '볼펜' },  { emoji: '📏', label: '자' }] },
+      snack:    { zoneId: 'snackbox',   variants: [{ emoji: '🍫', label: '초콜릿' },   { emoji: '🍪', label: '쿠키' },   { emoji: '🍿', label: '팝콘' }] },
+      phone:    { zoneId: 'phonestand', variants: [{ emoji: '📱', label: '스마트폰' }, { emoji: '🎮', label: '게임기' }] },
+      notebook: { zoneId: 'notebox',    variants: [{ emoji: '📓', label: '노트' },     { emoji: '📒', label: '공책' },   { emoji: '📔', label: '다이어리' }] },
+    },
+    zonesConfig: {
+      bookstand:  { label: '책꽂이',    emoji: '📚', accepts: 'textbook' },
+      pencilcase: { label: '필통',      emoji: '🖊️', accepts: 'pencil' },
+      snackbox:   { label: '간식함',    emoji: '🍫', accepts: 'snack' },
+      phonestand: { label: '폰 거치대', emoji: '📱', accepts: 'phone' },
+      notebox:    { label: '노트함',    emoji: '📝', accepts: 'notebook' },
+    },
   },
 };
 
-const ZONES_CONFIG = {
-  filebox:      { label: '파일함',  emoji: '🗂️', accepts: 'file' },
-  shelf:        { label: '선반',    emoji: '🪴', accepts: 'coffee' },
-  noticeboard:  { label: '메모판',  emoji: '📋', accepts: 'note' },
-  pencilholder: { label: '펜꽂이',  emoji: '🖊️', accepts: 'pen' },
-  bookshelf:    { label: '책장',    emoji: '📖', accepts: 'book' },
-};
+let ITEM_TYPES   = THEMES.office.itemTypes;
+let ZONES_CONFIG = THEMES.office.zonesConfig;
 
 const LEVEL_CONFIG = [
   null,
-  { count: 6,  time: 50, types: ['file', 'coffee'] },
-  { count: 9,  time: 55, types: ['file', 'coffee', 'note'] },
-  { count: 12, time: 55, types: ['file', 'coffee', 'note', 'pen'] },
-  { count: 15, time: 50, types: ['file', 'coffee', 'note', 'pen', 'book'] },
-  { count: 18, time: 50, types: ['file', 'coffee', 'note', 'pen', 'book'] },
+  { count: 6,  time: 50, typeCount: 2 },
+  { count: 9,  time: 55, typeCount: 3 },
+  { count: 12, time: 55, typeCount: 4 },
+  { count: 15, time: 50, typeCount: 5 },
+  { count: 18, time: 50, typeCount: 5 },
 ];
 
 function getLevelConfig(level) {
-  if (level <= 5) return LEVEL_CONFIG[level];
+  const allTypes = Object.keys(ITEM_TYPES);
+  if (level <= 5) {
+    const cfg = LEVEL_CONFIG[level];
+    return { ...cfg, types: allTypes.slice(0, cfg.typeCount) };
+  }
   return {
     count: 18 + (level - 5) * 2,
     time: 45,
-    types: Object.keys(ITEM_TYPES),
+    types: allTypes,
   };
 }
 
@@ -108,6 +120,7 @@ function getLevelConfig(level) {
 
 let state = {
   nickname:       '',
+  theme:          'office',
   level:          1,
   score:          0,
   timeLeft:       50,
@@ -310,6 +323,13 @@ els.nicknameInput.addEventListener('keydown', e => {
   if (e.key === 'Enter') handleStart();
 });
 
+document.querySelectorAll('.theme-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  });
+});
+
 function handleStart() {
   const nick = els.nicknameInput.value.trim();
   if (!nick) {
@@ -319,6 +339,13 @@ function handleStart() {
     return;
   }
   state.nickname = nick;
+  const selected = document.querySelector('.theme-btn.active');
+  state.theme    = selected ? selected.dataset.theme : 'office';
+  ITEM_TYPES     = THEMES[state.theme].itemTypes;
+  ZONES_CONFIG   = THEMES[state.theme].zonesConfig;
+  const theme    = THEMES[state.theme];
+  els.desk.style.background   = theme.deskBg;
+  els.desk.style.borderBottom = `4px solid ${theme.deskBorder}`;
   getAudioCtx().resume(); // 사용자 제스처 타이밍에 AudioContext 활성화
   startGame();
 }
