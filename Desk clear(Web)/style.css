@@ -244,7 +244,7 @@ body {
     linear-gradient(175deg, #d4a55a 0%, #c49040 55%, #b07828 100%);
   border-bottom: 4px solid #9a6820;
   cursor: default;
-  overflow: hidden;
+  overflow: visible;
 }
 
 /* ===== ITEMS ===== */
